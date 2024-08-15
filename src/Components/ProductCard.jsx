@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { FaRegStar } from "react-icons/fa";
 
 const ProductCard = ({product}) => {
-    const { _id, product_name, brand, img_url, description, price, category, rating, manufacture_date } = product;
+    const { product_name, brand, img_url, description, price, category, rating, manufacture_date } = product;
     return (
         <div className="card bg-base-100 shadow-xl">
             <figure>
@@ -13,7 +13,7 @@ const ProductCard = ({product}) => {
             <div className="card-body">
                 <h2 className="card-title">
                     { product_name }
-                    <div className="badge badge-secondary">{ brand }</div>
+                    <div className="badge badge-outline">{ brand }</div>
                 </h2>
                 <p>{ description }</p>
                 <p className='font-semibold'>Price: ${ price }</p>
