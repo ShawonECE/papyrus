@@ -16,9 +16,16 @@ const Products = () => {
     const [pageArray, setPageArray] = useState([]); 
     const [currentPage, setCurrentPage] = useState(1);
     const [modalOpen, setModalOpen] = useState(false);
+    const [filter, setFilter] = useState({
+        category: 'all',
+        brand: 'all',
+        min_price: 'no',
+        max_price: 'no'
+    });
+    const [filtered, setFiltered] = useState(false);
 
     useEffect(() => {
-        axios.get('http://localhost:3000/count')
+        axios.get('https://papyrus-server-rosy.vercel.app/count')
         .then(data => setCount(parseInt(data.data.count)))
     }, []);
 
@@ -46,21 +53,39 @@ const Products = () => {
         setPageArray(array);
     }, [perPage, count]);
 
-    const { isPending, data, refetch } = useQuery({ queryKey: [`products-${searchText}-${perPage}-${(currentPage-1)*perPage}-${sort}`], queryFn: async() => {
-        const data = await axios.get(`http://localhost:3000/products?name=${searchText}&limit=${perPage}&skip=${(currentPage-1)*perPage}&sort=${sort}`);
+    const { isPending, data, refetch } = useQuery({ queryKey: [`products-${searchText}-${perPage}-${(currentPage-1)*perPage}-${sort}-${filter.min_price}-${filter.max_price}-${filter.brand}-${filter.category}`], queryFn: async() => {
+        const data = await axios.get(`https://papyrus-server-rosy.vercel.app/products?name=${searchText}&limit=${perPage}&skip=${(currentPage-1)*perPage}&sort=${sort}&min_price=${filter.min_price}&max_price=${filter.max_price}&brand=${filter.brand}&category=${filter.category}`);
         return data.data;
     } });
 
     const {
         register,
         handleSubmit,
-        reset,
-        formState: { errors }
     } = useForm();
 
     const handleFilter = (data) => {
         setModalOpen(false);
-        console.log(data);
+        setCurrentPage(1);
+        const newData = {};
+        newData.category = data.category.toLowerCase();
+        if (data.brand === 'All') {
+            newData.brand = data.brand.toLowerCase();
+        } else {
+            newData.brand = data.brand;
+        }
+        if (data.min_price) {
+            newData.min_price = data.min_price;
+        } else {
+            newData.min_price = 'no';
+        }
+
+        if (data.max_price) {
+            newData.max_price = data.max_price;
+        } else {
+            newData.max_price = 'no';
+        }
+        setFilter(newData);
+        refetch();
     };
 
     const handleSearch = (e) => {
