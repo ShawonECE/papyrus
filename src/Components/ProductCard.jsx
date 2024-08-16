@@ -1,8 +1,9 @@
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import { FaRegStar } from "react-icons/fa";
 
 const ProductCard = ({product}) => {
-    const { product_name, brand, img_url, description, price, category, rating, manufacture_date } = product;
+    const { product_name, brand, img_url, description, price, category, rating, adding_date } = product;
     return (
         <div className="card bg-base-100 shadow-xl">
             <figure>
@@ -17,7 +18,7 @@ const ProductCard = ({product}) => {
                 </h2>
                 <p>{ description }</p>
                 <p className='font-semibold'>Price: ${ price }</p>
-                <p className='font-semibold'>Manufacturing Date: { manufacture_date }</p>
+                <p className='font-semibold'>Adding Date: { moment(adding_date).format("DD-MM-YYYY") }</p>
                 <p></p>
                 <div className="card-actions justify-end">
                     <div className="badge badge-outline">{ category }</div>

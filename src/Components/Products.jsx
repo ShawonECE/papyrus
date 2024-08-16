@@ -8,6 +8,8 @@ const Products = () => {
     const [searchText, setSearchText] = useState('');
     const [searched, setSearched] = useState(false);
     const [perPage, setPerPage] = useState(10);
+    const [sortValue, setSortValue] = useState('Sort By');
+    const [sort, setSort] = useState('no');
     const [numberOfPages, setNumberOfPages] = useState(0);
     const [count, setCount] = useState(0);
     const [pageArray, setPageArray] = useState([]); 
@@ -19,6 +21,20 @@ const Products = () => {
     }, []);
 
     useEffect(() => {
+        if (sortValue === 'Date: Newest first') {
+            setSort('new_date_first');
+        } else if (sortValue === 'Date: Oldest first') {
+            setSort('old_date_first');
+        } else if (sortValue === 'Price: High to Low') {
+            setSort('high_price_first');
+        } else if (sortValue === 'Price: Low to High') {
+            setSort('low_price_first');
+        } else {
+            setSort('no');
+        }
+    }, [sortValue]);
+
+    useEffect(() => {
         const newNumberOfPages = Math.ceil(count / perPage);
         setNumberOfPages(newNumberOfPages);
         const array = [];
@@ -28,8 +44,8 @@ const Products = () => {
         setPageArray(array);
     }, [perPage, count]);
 
-    const { isPending, data, refetch } = useQuery({ queryKey: [`products-${searchText}-${perPage}-${(currentPage-1)*perPage}`], queryFn: async() => {
-        const data = await axios.get(`http://localhost:3000/products?name=${searchText}&limit=${perPage}&skip=${(currentPage-1)*perPage}`);
+    const { isPending, data, refetch } = useQuery({ queryKey: [`products-${searchText}-${perPage}-${(currentPage-1)*perPage}-${sort}`], queryFn: async() => {
+        const data = await axios.get(`http://localhost:3000/products?name=${searchText}&limit=${perPage}&skip=${(currentPage-1)*perPage}&sort=${sort}`);
         return data.data;
     } });
 
@@ -43,9 +59,15 @@ const Products = () => {
         form.reset();
     };
 
+    const handleSort = (e) => {
+        setSortValue(e.target.value);
+        setCurrentPage(1);
+    };
+
     const handleClearSearch = () => {
         setSearchText('');
         setSearched(false);
+        setCurrentPage(1);
         // refetch();
     };
 
@@ -86,6 +108,15 @@ const Products = () => {
                     <button className="btn" onClick={handleClearSearch}><MdOutlineCancel className="text-lg" /> Clear Search</button>
                 </div>
             }
+            <div className="flex justify-center mt-5 mb-5">
+                <select value={sortValue} onChange={handleSort} className="select max-w-xs bg-gray-100 dark:bg-gray-200 text-lg font-semibold">
+                    <option disabled>Sort By</option>
+                    <option>Date: Newest first</option>
+                    <option>Date: Oldest first</option>
+                    <option>Price: High to Low</option>
+                    <option>Price: Low to High</option>
+                </select>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 { 
                     data.map(product => <ProductCard key={product._id} product={product}></ProductCard>) 
