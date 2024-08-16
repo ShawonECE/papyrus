@@ -3,6 +3,7 @@ import axios from "axios";
 import ProductCard from "./ProductCard";
 import { useEffect, useState } from "react";
 import { MdOutlineCancel } from "react-icons/md";
+import { useForm } from "react-hook-form";
 
 const Products = () => {
     const [searchText, setSearchText] = useState('');
@@ -14,6 +15,7 @@ const Products = () => {
     const [count, setCount] = useState(0);
     const [pageArray, setPageArray] = useState([]); 
     const [currentPage, setCurrentPage] = useState(1);
+    const [modalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
         axios.get('http://localhost:3000/count')
@@ -48,6 +50,18 @@ const Products = () => {
         const data = await axios.get(`http://localhost:3000/products?name=${searchText}&limit=${perPage}&skip=${(currentPage-1)*perPage}&sort=${sort}`);
         return data.data;
     } });
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors }
+    } = useForm();
+
+    const handleFilter = (data) => {
+        setModalOpen(false);
+        console.log(data);
+    };
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -108,7 +122,7 @@ const Products = () => {
                     <button className="btn" onClick={handleClearSearch}><MdOutlineCancel className="text-lg" /> Clear Search</button>
                 </div>
             }
-            <div className="flex justify-center mt-5 mb-5">
+            <div className="flex justify-center mt-5 mb-5 gap-5">
                 <select value={sortValue} onChange={handleSort} className="select max-w-xs bg-gray-100 dark:bg-gray-200 text-lg font-semibold">
                     <option disabled>Sort By</option>
                     <option>Date: Newest first</option>
@@ -116,6 +130,7 @@ const Products = () => {
                     <option>Price: High to Low</option>
                     <option>Price: Low to High</option>
                 </select>
+                <button className="btn" onClick={() => setModalOpen(true)}>Filter</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 { 
@@ -134,6 +149,59 @@ const Products = () => {
                     {
                         pageArray.map(number => <button key={number} className={`join-item btn ${currentPage == number ? 'btn-active' : ''}`} onClick={() => handleCurrentPage(number)}>{number}</button>)
                     }
+                </div>
+            </div>
+
+            {/* filtering modal */}
+            <input type="checkbox" checked={modalOpen} id="my_modal_6" className="modal-toggle" readOnly />
+            <div className="modal" role="dialog">
+                <div className="modal-box">
+                    <form method="dialog">
+                        <button onClick={() => setModalOpen(false)} className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                    </form>
+                    <form className="card-body" onSubmit={handleSubmit(handleFilter)} noValidate>
+                        <div className="form-control">
+                            <label className="label">
+                                <span className="label-text">Category</span>
+                            </label>
+                            <select className="select bg-gray-100" {...register("category")}>
+                                <option>All</option>
+                                <option>Paper Products</option>
+                                <option>Art Supplies</option>
+                                <option>Writing Instruments</option>
+                                <option>Filing and Organizing</option>
+                                <option>Desk Accessories</option>
+                            </select>
+                        </div>
+                        <div className="form-control">
+                            <label className="label">
+                                <span className="label-text">Brand</span>
+                            </label>
+                            <select className="select bg-gray-100" {...register("brand")}>
+                                <option>All</option>
+                                <option>Montex</option>
+                                <option>Camel</option>
+                                <option>Delli</option>
+                                <option>Faber-Castell</option>
+                                <option>Papier</option>
+                            </select>
+                        </div>
+                        <div className="form-control">
+                            <label className="label">
+                                <span className="label-text">Min. Price</span>
+                            </label>
+                            <input type="number" className="input input-bordered" {...register("min_price")} />
+                        </div>
+                        <div className="form-control">
+                            <label className="label">
+                                <span className="label-text">Max. Price</span>
+                            </label>
+                            <input type="number" className="input input-bordered" {...register("max_price")} />
+                        </div>
+                        <div className="form-control mt-6">
+                            <button type="submit" className="btn">Filter</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
