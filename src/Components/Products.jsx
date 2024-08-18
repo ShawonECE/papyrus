@@ -22,7 +22,6 @@ const Products = () => {
         min_price: 'no',
         max_price: 'no'
     });
-    const [filtered, setFiltered] = useState(false);
 
     useEffect(() => {
         axios.get('https://papyrus-server-rosy.vercel.app/count')
